@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #Imports
 import urllib3
@@ -16,8 +16,7 @@ X = 0
 Listed = 0
 Indexing = 0
 WorkingList = 0
-Contin = 1
-SPINE = ['nav']
+Spine = ['nav']
 MagicalIndex = []
 CacheName = "cache"
 cache = []
@@ -27,22 +26,29 @@ if os.path.isfile(CacheName):
         cache = json.load(f)
 listSize = len(cache)
 listCount = listSize - 1
+#toc = "("
+
 #Functions
 
 def Chapter(your_url, CH):
     d = pq(GetHTML(your_url))
     page = d(Query).html()
-    c1 = epub.EpubHtml(title="Chapter "+N, file_name=CH+'.xhtml', lang='en')
+    cTitle = "Chapter "+N
+    cFile = CH+'.xhtml'
+    c1 = epub.EpubHtml(title=cTitle, file_name=cFile, lang='en')
     c1.content = page
-    SPINE.append(c1)
+    Spine.append(c1)
     print(c1)
     bk.add_item(c1)
-    return
+    #Addition = "epub.Link('"+cFile+"', '"+cTitle+"'), "
+    return Addition
+
 def WPubCache():
     with open(CacheName, 'w') as f:
         json.dump(cache, f)
 
     return
+
 def GetHTML(This):
     user_agent = {'user-agent': 'Mozilla/5.0 (Windows NT 6.3; rv:36.0) ..'}
     http = urllib3.PoolManager(10, headers=user_agent)
@@ -63,6 +69,8 @@ def Index():
             MagicalIndex.append("http://japtem.com/" + link.attrib["href"])
         else:
             MagicalIndex.append(link.attrib["href"])
+    return
+
 def PageDump(your_url):
     d = pq(GetHTML(your_url))
     page = d(Query).html()
@@ -102,7 +110,7 @@ if WorkingList == 1:
             print("Found!")
             Listed = i+1      
             break
-        
+#If the book has a listing, load data from listing     
 if Listed != 0:
     print("Listing confirmed.")
     Listed = Listed-1
@@ -111,7 +119,8 @@ if Listed != 0:
     Title = a[1]
     ContextRule = a[2]
     Query = a[3]
-    
+
+#Otherwise, ask for data, and append it
 else:
     Title = input("Set Book Name: ")
     ContextRule = input("Set the Context (Table of Contents) jQuery String Selector: ")
@@ -123,31 +132,28 @@ else:
     a.append(ContextRule)
     a.append(Query)
 
-for row in cache:
-    print(row)
 
-WPubCache()
+#Indexes the chapter list, and then saves the data. Doing it in this order might allow for some error catching.
 Index()
+WPubCache()
 
 
-for my_url in MagicalIndex:
+#Flip through the index of chapters, and add them all to the book.
+IndexCount = len(MagicalIndex)
+print(str(IndexCount) + " Chapters found.")
+      
+for ch_url in MagicalIndex:
     X += 1
     N = str(X)
-    Ch = "c"+N
-    Chapter(my_url, Ch)
-    #SPINE+=", "+Ch
-##    my_url = input("Download maybe successful! I dunno! I didn't make error checking! Give me another link, or say 0 for done! ")
-##    if my_url == "0":
-##        print(X)
-##        for i in range(1, X+1):
-##            List += "c" + str(i) + ", "
-##            Links += "c" + str(i) + ".xhtml, "
-##            
-##        print(List)
-##        bk.toc = (epub.Link(Links),
-##                  (epub.Section('Languages'),
-##                   (List)),
-##                   )
+    Ch = "Ch"+N
+    #toc += Chapter(ch_url, Ch)
+
+##print(Spine)
+##FinalSpine = str(Spine).strip('[]')
+##toc+="(epub.Section('Languages'), ("+FinalSpine+"))"
+##print(toc)
+##bk.toc = toc
+
 
 #Metadata
 bk.set_identifier(Title)
@@ -172,6 +178,6 @@ body, table {
 nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=style)
 bk.add_item(nav_css)
 
-bk.spine=SPINE
+bk.spine=Spine
 
 epub.write_epub(Title+'.epub', bk, {})
