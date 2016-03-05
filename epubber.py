@@ -26,7 +26,7 @@ if os.path.isfile(CacheName):
         cache = json.load(f)
 listSize = len(cache)
 listCount = listSize - 1
-#toc = "("
+toc = "("
 
 #Functions
 
@@ -40,7 +40,7 @@ def Chapter(your_url, CH):
     Spine.append(c1)
     print(c1)
     bk.add_item(c1)
-    #Addition = "epub.Link('"+cFile+"', '"+cTitle+"'), "
+    Addition = "epub.Link('"+cFile+"', '"+cTitle+"'), "
     return Addition
 
 def WPubCache():
@@ -146,7 +146,7 @@ for ch_url in MagicalIndex:
     X += 1
     N = str(X)
     Ch = "Ch"+N
-    #toc += Chapter(ch_url, Ch)
+    toc += Chapter(ch_url, Ch)
 
 ##print(Spine)
 ##FinalSpine = str(Spine).strip('[]')
