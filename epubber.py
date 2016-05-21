@@ -28,6 +28,8 @@ listSize = len(cache)
 listCount = listSize - 1
 toc = "("
 
+urllib3.disable_warnings()
+
 #Functions
 
 def Chapter(your_url, CH):
@@ -105,7 +107,6 @@ if args.mode:
 if WorkingList == 1:
     print("Cache Found, searching " + str(listSize) + " entries...")
     for i in range(0, listSize):
-        print("Checking Entry: " + str(i))
         if cache[i][0] == Context:
             print("Found!")
             Listed = i+1      
