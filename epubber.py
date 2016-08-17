@@ -9,6 +9,7 @@ import sys
 import argparse
 import os.path
 import json
+import urlparse3
 
 #Vars
 bk= epub.EpubBook()
@@ -58,19 +59,25 @@ def GetHTML(This):
     return r1.data
 
 def Index():
+    print("Starting indexing")
     Links = ["end", ]
     d = pq(GetHTML(Context))
+    print(d)
     if Indexing == 1:
         print("Printing selected code")
-        print(d(ContextRule))
+    #    print(d(ContextRule))
         print("Printing valid links")
     for link in d(ContextRule):
         if Indexing == 1:
             print(link.attrib["href"])
         if Context == "http://japtem.com/projects/magis-grandson-toc/":
             MagicalIndex.append("http://japtem.com/" + link.attrib["href"])
+        elif Context.startswith("http://www.xianxiaworld.net/"):
+            MagicalIndex.append(Context + link.attrib["href"])
         else:
             MagicalIndex.append(link.attrib["href"])
+    if Context.startswith("http://www.novelsaga.com/"):
+        MagicalIndex.reverse()
     return
 
 def PageDump(your_url):
